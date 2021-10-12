@@ -1,0 +1,5 @@
+Cac service:
+1.auth-service  
+2.user-service  
+3.movie-service
+4.community-service
