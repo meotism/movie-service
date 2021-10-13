@@ -1,9 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
 var config *Config
@@ -51,60 +55,57 @@ type Config struct {
 }
 
 //Use this init() when local env
-// func init() {
-// 	config = &Config{}
-// 	err := godotenv.Load(".env")
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	err = envconfig.Process("", config)
-
-// 	if err != nil {
-// 		panic(fmt.Sprintf("Failed to decode config env: %v", err))
-// 	}
-
-// 	if len(config.Port) == 0 {
-// 		config.Port = "9000"
-// 	}
-
-// 	if config.MySQL.MaxIdleConns == 0 {
-// 		config.MySQL.MaxIdleConns = 10
-// 	}
-
-// 	if config.MySQL.MaxOpenConns == 0 {
-// 		config.MySQL.MaxOpenConns = 10
-// 	}
-
-// 	config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
-// 	config.Jwt.RefreshTokenExpire = time.Duration(config.Jwt.RawRefreshTokenExpire) * time.Hour
-// }
-
-//Use this init() when deloy to heroku
 func init() {
 	config = &Config{}
-	config.Port = os.Getenv("PORT")
+	err := godotenv.Load(".env")
 
-	if config.MySQL.MaxIdleConns == 0 {
-		config.MySQL.MaxIdleConns = 10
+	if err != nil {
+		config.Port = os.Getenv("PORT")
+
+		if config.MySQL.MaxIdleConns == 0 {
+			config.MySQL.MaxIdleConns = 10
+		}
+
+		if config.MySQL.MaxOpenConns == 0 {
+			config.MySQL.MaxOpenConns = 10
+		}
+
+		config.MySQL.Masters = []string{os.Getenv("DB_MASTER_HOSTS")}
+		config.MySQL.Slaves = []string{os.Getenv("DB_SLAVE_HOSTS")}
+		config.MySQL.DBName = os.Getenv("DB_NAME")
+		config.MySQL.User = os.Getenv("DB_USER")
+		config.MySQL.Pass = os.Getenv("DB_PASS")
+		config.MySQL.MaxIdleConns, _ = strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
+		config.MySQL.MaxOpenConns, _ = strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTIONS"))
+
+		config.Jwt.Key = os.Getenv("JWT_KEY")
+		config.Jwt.RawTokenExpire, _ = strconv.Atoi(os.Getenv("JWT_TOKEN_EXPIRE"))
+
+		config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
+
+	} else {
+
+		err = envconfig.Process("", config)
+
+		if err != nil {
+			panic(fmt.Sprintf("Failed to decode config env: %v", err))
+		}
+
+		if len(config.Port) == 0 {
+			config.Port = "9000"
+		}
+
+		if config.MySQL.MaxIdleConns == 0 {
+			config.MySQL.MaxIdleConns = 10
+		}
+
+		if config.MySQL.MaxOpenConns == 0 {
+			config.MySQL.MaxOpenConns = 10
+		}
+
+		config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
+		config.Jwt.RefreshTokenExpire = time.Duration(config.Jwt.RawRefreshTokenExpire) * time.Hour
 	}
-
-	if config.MySQL.MaxOpenConns == 0 {
-		config.MySQL.MaxOpenConns = 10
-	}
-
-	config.MySQL.Masters = []string{os.Getenv("DB_MASTER_HOSTS")}
-	config.MySQL.Slaves = []string{os.Getenv("DB_SLAVE_HOSTS")}
-	config.MySQL.DBName = os.Getenv("DB_NAME")
-	config.MySQL.User = os.Getenv("DB_USER")
-	config.MySQL.Pass = os.Getenv("DB_PASS")
-	config.MySQL.MaxIdleConns, _ = strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
-	config.MySQL.MaxOpenConns, _ = strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTIONS"))
-
-	config.Jwt.Key = os.Getenv("JWT_KEY")
-	config.Jwt.RawTokenExpire, _ = strconv.Atoi(os.Getenv("JWT_TOKEN_EXPIRE"))
-
-	config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
 }
 
 // GetConfig .

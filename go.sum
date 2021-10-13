@@ -163,6 +163,8 @@ github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7J
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
+github.com/phamtrung99/auth-service v0.0.0-20211013023038-8b83da121b6d h1:2KrnJI/gNahoJ/pMKJknlhoGie1QF+vmwGTusb3fwE8=
+github.com/phamtrung99/auth-service v0.0.0-20211013023038-8b83da121b6d/go.mod h1:UOdgRrEg28Oih4f6aPOB0MydTrd19laBARaYiWCYWOI=
 github.com/phamtrung99/gopkg v0.0.0-20211004070841-b3b9f1a32ca6 h1:9XIunKdlLFrYesQmzmcLKMj2y/AoRp8YDOREKqmmT8s=
 github.com/phamtrung99/gopkg v0.0.0-20211004070841-b3b9f1a32ca6/go.mod h1:DFIfS+dY/48fDpTKMg4h/faiiHqdVnQiOGKXamAb19o=
 github.com/philhofer/fwd v1.1.1 h1:GdGcTjf5RNAxwS4QLsiMzJYj5KEvPJD3Abr261yRQXQ=
