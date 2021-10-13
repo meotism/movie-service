@@ -2,7 +2,8 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -54,34 +55,33 @@ type Config struct {
 }
 
 func init() {
+	config = &Config{}
 	err := godotenv.Load(".env")
 
 	if err != nil {
-		log.Fatal(err)
+		GetHerokuENVConfig(config)
+	} else {
+		err = envconfig.Process("", config)
+
+		if err != nil {
+			panic(fmt.Sprintf("Failed to decode config env: %v", err))
+		}
+
+		if len(config.Port) == 0 {
+			config.Port = "9000"
+		}
+
+		if config.MySQL.MaxIdleConns == 0 {
+			config.MySQL.MaxIdleConns = 10
+		}
+
+		if config.MySQL.MaxOpenConns == 0 {
+			config.MySQL.MaxOpenConns = 10
+		}
+
+		config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
+		config.Jwt.RefreshTokenExpire = time.Duration(config.Jwt.RawRefreshTokenExpire) * time.Hour
 	}
-
-	config = &Config{}
-
-	err = envconfig.Process("", config)
-
-	if err != nil {
-		panic(fmt.Sprintf("Failed to decode config env: %v", err))
-	}
-
-	if len(config.Port) == 0 {
-		config.Port = "9000"
-	}
-
-	if config.MySQL.MaxIdleConns == 0 {
-		config.MySQL.MaxIdleConns = 10
-	}
-
-	if config.MySQL.MaxOpenConns == 0 {
-		config.MySQL.MaxOpenConns = 10
-	}
-
-	config.Jwt.TokenExpire = time.Duration(config.Jwt.RawTokenExpire) * time.Hour
-	config.Jwt.RefreshTokenExpire = time.Duration(config.Jwt.RawRefreshTokenExpire) * time.Hour
 }
 
 // GetConfig .
@@ -89,65 +89,30 @@ func GetConfig() *Config {
 	return config
 }
 
-// type MysqlEnvConfig struct {
-// 	Host     string
-// 	DB       string
-// 	User     string
-// 	Port     string
-// 	Password string
-// 	URI      string
-// }
+//Get enviroment variable in heroku
+func GetHerokuENVConfig(conf *Config) {
 
-// type ServerEnvConfig struct {
-// 	Port string
-// }
+	conf.Port = os.Getenv("PORT")
 
-// type Pagination struct {
-// 	MovieRowPerPage int
-// }
+	if conf.MySQL.MaxIdleConns == 0 {
+		conf.MySQL.MaxIdleConns = 10
+	}
 
-// func LoadFileEnv() {
-// 	err := godotenv.Load(".env")
+	if conf.MySQL.MaxOpenConns == 0 {
+		conf.MySQL.MaxOpenConns = 10
+	}
 
-// 	if err != nil {
-// 		log.Fatal("Error loading .env file: ", err)
-// 	}
-// }
+	conf.MySQL.Masters = []string{os.Getenv("DB_MASTER_HOSTS")}
+	conf.MySQL.Slaves = []string{os.Getenv("DB_SLAVE_HOSTS")}
+	conf.MySQL.DBName = os.Getenv("DB_NAME")
+	conf.MySQL.User = os.Getenv("DB_USER")
+	conf.MySQL.Pass = os.Getenv("DB_PASS")
+	conf.MySQL.MaxIdleConns, _ = strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
+	conf.MySQL.MaxOpenConns, _ = strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTIONS"))
 
-// func GetSecretKey() string {
-// 	LoadFileEnv()
-// 	return os.Getenv("SECRET_KEY")
-// }
+	conf.Jwt.Key = os.Getenv("JWT_KEY")
+	conf.Jwt.RawTokenExpire, _ = strconv.Atoi(os.Getenv("JWT_TOKEN_EXPIRE"))
 
-// func GetMysqlEnvConfig() *MysqlEnvConfig {
-// 	LoadFileEnv()
-// 	var mysql MysqlEnvConfig
-// 	mysql.Host = os.Getenv("MYSQL_HOST")
-// 	mysql.User = os.Getenv("MYSQL_USER")
-// 	mysql.Password = os.Getenv("MYSQL_PASSWORD")
-// 	mysql.DB = os.Getenv("MYSQL_DB")
-// 	mysql.Port = os.Getenv("MYSQL_PORT")
+	conf.Jwt.TokenExpire = time.Duration(conf.Jwt.RawTokenExpire) * time.Hour
 
-// 	return &mysql
-// }
-
-// func GetServerConfig() *ServerEnvConfig {
-// 	LoadFileEnv()
-// 	var server ServerEnvConfig
-// 	server.Port = os.Getenv("SERVER_PORT")
-
-// 	return &server
-// }
-
-// func GetPagination() *Pagination {
-// 	LoadFileEnv()
-// 	var pagi Pagination
-// 	rowPerPage, err := strconv.Atoi(os.Getenv("MOVIE_ROW_PER_PAGE"))
-// 	pagi.MovieRowPerPage = rowPerPage
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	return &pagi
-// }
+}
