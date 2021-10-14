@@ -16,7 +16,7 @@ import (
 
 type UpdateMovieRequest struct {
 	FormData *multipart.Form
-	MovieID  int64 `json:"movie_id"` //get from QueryParam
+	MovieID  int64 `json:"movie_id"` //get from Param
 }
 
 func (u *Usecase) Update(ctx context.Context, req UpdateMovieRequest) (*model.Movie, error) {
