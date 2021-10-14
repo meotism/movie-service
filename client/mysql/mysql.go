@@ -88,7 +88,7 @@ func Init() {
 	rawDB, _ := db.DB()
 	rawDB.SetMaxIdleConns(cfg.MySQL.MaxIdleConns)
 	rawDB.SetMaxOpenConns(cfg.MySQL.MaxOpenConns)
-	rawDB.SetConnMaxLifetime(time.Minute * 5)
+	rawDB.SetConnMaxLifetime(time.Minute * 1)
 
 	log.Println("Connected db")
 }
