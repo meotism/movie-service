@@ -2,6 +2,7 @@ package movie
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -131,6 +132,7 @@ func (r *pgRepository) SearchMovie(
 
 	// Paging
 	var result model.MovieResult
+	var kq *gorm.DB
 
 	if paginator.Limit >= 0 {
 		if paginator.Page <= 0 {
@@ -143,12 +145,13 @@ func (r *pgRepository) SearchMovie(
 
 		result.Page = paginator.Page
 		result.Limit = paginator.Limit
-		query.Count(&result.Total).Scopes(paginator.Paginate())
+		limitQuery := " LIMIT " + fmt.Sprint(result.Limit) + " OFFSET " + fmt.Sprint((result.Page-1)*result.Limit)
+		kq = query.Raw(fmt.Sprint(queryStr, limitQuery)).Find(&result.Data)
+
+		result.Total = query.Raw(queryStr).Find(&[]model.Movie{}).RowsAffected
 	}
 
-	err := query.Raw(queryStr).Find(&result.Data).Error
-
-	return &result, err
+	return &result, kq.Error
 }
 
 func (r *pgRepository) Insert(ctx context.Context, movie *model.Movie) (*model.Movie, error) {

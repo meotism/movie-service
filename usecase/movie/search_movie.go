@@ -19,6 +19,7 @@ type ListMovieRequest struct {
 
 func (u *Usecase) SearchMovie(ctx context.Context, searchText string, req ListMovieRequest) (*model.MovieResult, error) {
 
+	//log.Fatal(req.Paginator)
 	isTrue, strSearch := checkform.CheckFormatValue("search", searchText)
 	if !isTrue {
 		return nil, myerror.ErrSearchTexFormat(nil)
