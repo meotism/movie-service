@@ -2,6 +2,7 @@ package movie
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/phamtrung99/gopkg/apperror"
@@ -13,14 +14,12 @@ func (r *Route) Delete(c echo.Context) error {
 	var (
 		ctx      = &utils.CustomEchoContext{Context: c}
 		appError = apperror.AppError{}
-		req      = movie.DeleteMovieRequest{}
 	)
 
-	// Bind order by
-	if err := c.Bind(&req); err != nil {
-		_ = errors.As(err, &appError)
+	movieID, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 
-		return utils.Response.Error(ctx, apperror.ErrInvalidInput(err))
+	req := movie.DeleteMovieRequest{
+		ID: movieID,
 	}
 
 	err := r.movieUseCase.Delete(ctx, req)
