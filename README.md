@@ -23,7 +23,7 @@ Waitting it finish and then start server by this command
 ```
 make run
 ```
-If you see `Server is running on http://localhost:`. It's done  🚀 🚀 🚀
+When you see `Server is running on http://localhost:`. It's success  🚀 🚀 🚀
 
 ## Documentation 
 🤖NOTE: I will add the document as soon as possible
